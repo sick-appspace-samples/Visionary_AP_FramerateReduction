@@ -1,5 +1,6 @@
 ## Visionary_AP_FramerateReduction
 
+
 Reduce the frame rate and optionally average over the skipped frames.
 
 ### Description
@@ -15,4 +16,5 @@ Set a breakpoint on the first row inside the main function to debug step-by-step
 See the results in the viewer on the DevicePage.
 
 ### Topics
-Frame-rate-reduction, Averaging, Visionary, Sample, SICK-AppSpace
+
+Frame_rate_reduction, Averaging, Visionary, Sample, SICK-AppSpace.
