@@ -1,22 +1,22 @@
 --[[----------------------------------------------------------------------------
 
   Application Name: Visionary_AP_FramerateReduction
-  
-  
+
+
   Summary:
   Reduce the frame rate and optionally average over the skipped frames
-  
+
   Description:
   This application reduces the number of frames shown, while optionally
   averaging the values of the skipped frames. The behavior of the application
   can be changed by modifying the config_* variables
-  
+
   How to run:
   Start by running the app (F5) or debugging (F7+F10).
   Set a breakpoint on the first row inside the main function to debug step-by-step.
   See the results in the viewer on the DevicePage.
-  
-    
+
+
 ------------------------------------------------------------------------------]]
 
 --Start of Global Scope---------------------------------------------------------
@@ -45,19 +45,21 @@ Image.Provider.Camera.stop(camera)
 
 --Start of Function and Event Scope---------------------------------------------
 
---@displayImage(image:Image)
+---@param image Image
 local function displayImage(image)
   View.addImage(viewer, image, deco)
   View.present(viewer)
 end
 
---@initStateImages(width:Int, height:Int)
+---@param width Int
+---@param height Int
 local function initStateImages(width, height)
   compositeImage = Image.create(width, height, "FLOAT32")
   missingDataImage = Image.create(width, height, "FLOAT32")
 end
 
---@displayEveryNthFrame(image:Imagem,sensordata:SensorData)
+---@param image Imagem
+---@param sensordata SensorData
 local function displayEveryNthFrame(image)
   imagesSinceDisplay = imagesSinceDisplay + 1            --count every frame
   if imagesSinceDisplay == configNthFrame then             --check if enough frames have passed
@@ -66,25 +68,26 @@ local function displayEveryNthFrame(image)
   end
 end
 
---@displayEveryNthFrameWithAveraging(image:Image,sensordata:SensorData)
+---@param image Image
+---@param sensordata SensorData
 local function displayEveryNthFrameWithAveraging(image)
   local depth_image = image[1]
   depth_image:setMissingDataFlag(false)
-  
+
   -- initialize composite and missing image for the first time
   if (compositeImage == nil) or (missingDataImage == nil) then
     initStateImages(Image.getWidth(depth_image), Image.getHeight(depth_image))
   end
-  
+
   compositeImage = Image.add(compositeImage, Image.toType(depth_image, "FLOAT32"))
-  
+
   -- Need to set the 'missing data flag' for the image here to be able
   -- to extract missing parts of the image.
   depth_image:setMissingDataFlag(true)
   missingDataImage = Image.add(missingDataImage, Image.toType(depth_image:getMissingDataImage(0, 1), "FLOAT32"))
-    
+
   imagesSinceDisplay = imagesSinceDisplay + 1
-  
+
   if imagesSinceDisplay == configNthFrame then
     -- The composite image is the sum of all received images. To
     -- convert it back to distance values, divide it by the number of
@@ -97,7 +100,6 @@ local function displayEveryNthFrameWithAveraging(image)
   end
 end
 
---@main()
 local function main()
   if configEnableAveraging then
     Image.Provider.Camera.register(camera, "OnNewImage", displayEveryNthFrameWithAveraging)
